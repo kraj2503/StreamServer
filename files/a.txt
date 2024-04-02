@@ -1,0 +1,2 @@
+This is from 'a.txt' file!!!
+Its working!!
