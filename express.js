@@ -19,11 +19,11 @@ const ipv4Addresses = Object.keys(networkInterfaces)
     }, []);
 
 // Define the port number
-const port = 8080;
+const port = 3000;
 
 // Log the first IPv4 address followed by the port to the console
 // console.log(`Server is hosted at: http${ipv4Address}:${port}`);
-console.log(`Server is hosted at:, http://${ipv4Addresses[0]}:${port}`);
+console.log(`Server is hosted at:, http://${ipv4Addresses}:${port}`);
 function time(req, res, next) {
     let date_time = new Date();
     let date = ("0" + date_time.getDate()).slice(-2);
@@ -52,40 +52,62 @@ console.log("Server Started at ", _time());
 
 app.get('/', time, (req, res) => {
     console.log("Server is Up and running!");
-    
-    
+
+    res.status(200).json({ msg: "Server is up!" });
 });
 
 app.get('/test', time, (req, res) => {
     console.log("Test is called!");
-    
-    res.sendFile('index.html', { root: __dirname });
+    res.sendFile('intro/index.html', { root: __dirname });
 });
 
 app.get('/files', time, (req, res) => {
     fs.readdir(path.join(__dirname, '/files'), (err, files) => {
         if (err) {
-            console.log("error: 'Failed to retrieve'" );
-            return res.status(500).json({ error: 'Failed to retrieve' });
+            console.log("error: ", err);
+
         }
         console.log("directory sent: ", files);
         res.json(files);
     });
 });
 
-app.get('/files/:filename', time, (req, res) => {
-    const filePath = path.join(__dirname, '/files/');
-    console.log("File sent on path : ", filePath,"/",req.params.filename);
-    res.sendFile(req.params.filename, { root: filePath }, (err) => {
-        if (err) {
-            console.error("Error sending file:", err);
-            res.status(500).json({ error: 'Failed to retrieve file' });
-        }
-    });
+app.get('/files/:filename', (req, res) => {
+    const filePath = path.join(__dirname, '/files/')
+    // console.log(filePath)
+    res.sendFile(req.params.filename, { root: filePath });
 });
 
+
+
+// app.get('/files/:filename', (req, res) => {
+//     const filePath = path.join(__dirname, '/files/', req.params.filename);
+//     console.log(filePath);
+//     fs.access(filePath, fs.constants.F_OK, (err) => {
+//         if (err) {
+//             // File does not exist
+//             res.status(404).send('File not found');
+//             return;
+//         }
+
+//         // Create a Readable stream
+//         const stream = fs.createReadStream(filePath);
+
+//         // Stream the file to the response
+//         stream.pipe(res);
+
+//         // Handle errors
+//         stream.on('error', (err) => {
+//             console.error('Stream error:', err);
+//             res.status(500).send('Internal Server Error');
+//         });
+//     });
+// });
+
+
+
 app.all('*', (req, res) => {
-    return res.status(404).send("Route not found");
+    return res.status(404).send("Route doesn't Exists");
 });
 
 app.use((err, req, res, next) => {
