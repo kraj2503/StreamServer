@@ -3,6 +3,8 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const { exec } = require('child_process');
+
 app.use(express.json());
 
 const networkInterfaces = os.networkInterfaces();
@@ -78,6 +80,19 @@ app.get('/files/:filename', (req, res) => {
     res.sendFile(req.params.filename, { root: filePath });
 });
 
+app.get('/sysdown', (req,res)=>{
+    exec('shutdown /s /t 0', (error, stdout, stderr) => {
+        if (error) {
+          res.send(`Error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+            res.send(`stderr: ${stderr}`);
+          return;
+        }
+        res.send(`stdout: ${stdout}`);
+      });
+})
 
 
 // app.get('/files/:filename', (req, res) => {
